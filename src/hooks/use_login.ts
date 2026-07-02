@@ -1,6 +1,8 @@
 
 import { useMutation } from "@tanstack/react-query";
 import { useNavigate } from "react-router";
+import useReconciliationStore  from "../stores/useReconciliation"
+import type { ReconciliationDefaults } from "../stores/useReconciliation";
 
 const LOGIN_URL =
     `${import.meta.env.VITE_SUPABASE_PROJECT_URL}/functions/v1/client_admin_login`;
@@ -17,6 +19,8 @@ type LoginResponse = {
     redirect?: string;
     uuid?: string;
     status?: string;
+    role?:string;
+    default_store?: Partial<ReconciliationDefaults>;
 };
 
 export const useLogin = () => {
@@ -47,13 +51,19 @@ export const useLogin = () => {
                 throw new Error("Login failed");
             }
             
-            console.log(data);
+            console.log(data.default_store);
             if(data.status === "login_successfully") {
-                
+                if (data.default_store) {
+                    useReconciliationStore.getState().setDefaults(data.default_store);
+                }
                 localStorage.setItem("uuid",data.uuid || "");
                 navigate(data.redirect || "/");
             }
             if(data.status === "returning"){
+                useReconciliationStore.getState().setSomeField(data.role || "");
+                if (data.default_store) {
+                    useReconciliationStore.getState().setDefaults(data.default_store);
+                }
                 navigate(`${data.redirect || "/"}`)
             }
             return data;

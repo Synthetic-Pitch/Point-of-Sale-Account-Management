@@ -1,10 +1,72 @@
-import {create} from 'zustand';
+import { create } from 'zustand'
+import { persist, createJSONStorage } from 'zustand/middleware'
 
-
-type ReconciliationStore = {
-
+export type ReconciliationDefaults = {
+  created_at: string | null
+  id: number | null
+  small_cups: number | null
+  medium_cups: number | null
+  large_cups: number | null
+  opening_cash: number | null
+  opening_potatoes: number | null
+  store: string | null
 }
 
-export const useReconciliationStore = create<ReconciliationStore>((set)=>({
-    
-}))
+const initialDefaults: ReconciliationDefaults = {
+  created_at: null,
+  id: null,
+  small_cups: null,
+  medium_cups: null,
+  large_cups: null,
+  opening_cash: null,
+  opening_potatoes: null,
+  store: null,
+}
+
+interface YourState {
+  someField: string | null
+  anotherField: number
+  defaults: ReconciliationDefaults
+}
+
+interface YourActions {
+  setSomeField: (value: string) => void
+  setDefaults: (value: Partial<ReconciliationDefaults>) => void
+  reset: () => void
+}
+
+type YourStore = YourState & YourActions
+
+const useReconciliationStore = create<YourStore>()(
+  persist(
+    (set) => ({
+      someField: null,
+      anotherField: 0,
+      defaults: initialDefaults,
+      setSomeField: (value) => set({ someField: value }),
+      setDefaults: (value) =>
+        set((state) => ({
+          defaults: {
+            ...state.defaults,
+            ...value,
+          },
+        })),
+      reset: () =>
+        set({
+          someField: null,
+          anotherField: 0,
+          defaults: initialDefaults,
+        }),
+    }),
+    {
+      name: 'reconciliation-storage',
+      storage: createJSONStorage(() => sessionStorage),
+      partialize: (state) => ({
+        someField: state.someField,
+        defaults: state.defaults,
+      }),
+    }
+  )
+)
+
+export default useReconciliationStore
