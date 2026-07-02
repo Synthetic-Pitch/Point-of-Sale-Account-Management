@@ -195,7 +195,7 @@ const LandingPage = () => {
                 />
 
                 <label className="select-none text-[gray]">branch</label>
-                <div className="flex items-center justify-between gap-4 border-b border-black px-2 py-2">
+                <div className="flex items-center justify-between gap-4  px-2 py-2">
                     <button
                         type="button"
                         className="cursor-pointer rounded-full border px-3 py-1 disabled:cursor-not-allowed disabled:opacity-40"
@@ -216,7 +216,7 @@ const LandingPage = () => {
                 </div>
 
                 <button
-                    className="cursor-pointer pt-8 disabled:cursor-not-allowed disabled:opacity-60 font-bold"
+                    className="cursor-pointer pt-8 disabled:cursor-not-allowed disabled:opacity-60 font-semibold text-xl"
                     disabled={login.isPending}
                     onClick={handleLogin}
                 >
