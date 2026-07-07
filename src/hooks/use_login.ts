@@ -30,7 +30,7 @@ export const useLogin = () => {
             const typedUuid = uuid?.trim();
             const storedUuid = localStorage.getItem("uuid")?.trim();
             const loginUuid = typedUuid || storedUuid;
-
+            
             const response = await fetch(LOGIN_URL, {
                 method: "POST",
                 headers: {
@@ -60,7 +60,6 @@ export const useLogin = () => {
                 navigate(data.redirect || "/");
             }
             if(data.status === "returning"){
-                useReconciliationStore.getState().setSomeField(data.role || "");
                 if (data.default_store) {
                     useReconciliationStore.getState().setDefaults(data.default_store);
                 }

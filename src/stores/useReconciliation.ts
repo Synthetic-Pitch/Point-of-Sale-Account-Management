@@ -24,13 +24,13 @@ const initialDefaults: ReconciliationDefaults = {
 }
 
 interface YourState {
-  someField: string | null
+  appeal: string | null
   anotherField: number
   defaults: ReconciliationDefaults
 }
 
 interface YourActions {
-  setSomeField: (value: string) => void
+  setAppeal: (value: string) => void
   setDefaults: (value: Partial<ReconciliationDefaults>) => void
   reset: () => void
 }
@@ -40,10 +40,10 @@ type YourStore = YourState & YourActions
 const useReconciliationStore = create<YourStore>()(
   persist(
     (set) => ({
-      someField: null,
+      appeal: null,
       anotherField: 0,
       defaults: initialDefaults,
-      setSomeField: (value) => set({ someField: value }),
+      setAppeal: (value) => set({ appeal: value }),
       setDefaults: (value) =>
         set((state) => ({
           defaults: {
@@ -53,7 +53,7 @@ const useReconciliationStore = create<YourStore>()(
         })),
       reset: () =>
         set({
-          someField: null,
+          appeal: null,
           anotherField: 0,
           defaults: initialDefaults,
         }),
@@ -62,7 +62,7 @@ const useReconciliationStore = create<YourStore>()(
       name: 'reconciliation-storage',
       storage: createJSONStorage(() => sessionStorage),
       partialize: (state) => ({
-        someField: state.someField,
+        appeal: state.appeal,
         defaults: state.defaults,
       }),
     }

@@ -2,6 +2,8 @@ import { useNavigate } from "react-router";
 import useReconciliationStore  from "../stores/useReconciliation"
 import { useEffect } from "react";
 import type { ReconciliationDefaults } from "../stores/useReconciliation";
+import {useConfirmReconciliation} from "../hooks/use_confirm_reconciliation"
+
 
 type CounterField = Extract<
     keyof ReconciliationDefaults,
@@ -35,7 +37,8 @@ const Reconciliation = () => {
     const navigate = useNavigate();
     const defaults = useReconciliationStore((state) => state.defaults); 
     const setDefaults = useReconciliationStore((state) => state.setDefaults);
-
+    const confirmReconciliation = useConfirmReconciliation();
+    const appeal = useReconciliationStore((state) => state.appeal);
     useEffect(()=>{
         if(defaults.store === null || defaults.created_at === null || defaults.id === null || defaults.small_cups === null || defaults.medium_cups === null || defaults.large_cups === null || defaults.opening_cash === null || defaults.opening_potatoes === null) {
         navigate("/");
@@ -50,6 +53,25 @@ const Reconciliation = () => {
         });
     };
     
+    const handleConfirm = () => {
+        if(defaults.opening_cash === null || defaults.opening_potatoes === null || defaults.small_cups === null || defaults.medium_cups === null || defaults.large_cups === null) {
+            return;
+        }
+
+        confirmReconciliation.mutate({
+            uuid: localStorage.getItem("uuid") ?? undefined,
+            small_cups: defaults.small_cups,
+            medium_cups: defaults.medium_cups,
+            big_cups: defaults.large_cups,
+            opening_potatoes: defaults.opening_potatoes,
+            opening_cash: true,
+            appeal:appeal || undefined
+        });
+    }
+
+    const handleAppeal = () => {
+        useReconciliationStore.getState().setAppeal("opening_cash");
+    }
     return (
         <div className="min-h-dvh flex flex-col items-center justify-center font-poppins text-center text-2xl py-12">
             <p className="text-[#8b8b8b] text-3xl">verify opening cash</p>
@@ -80,8 +102,17 @@ const Reconciliation = () => {
                 onDecrease={() => updateCounter("large_cups", -1)}
                 onIncrease={() => updateCounter("large_cups", 1)}
             />
-            <button className="text-white bg-[#fe7e32] px-12 py-2 rounded-full my-8 text-2xl">confirm</button>
-            <button className="text-[#fe7e32]  px-6 py-1 rounded-full">appeal</button>
+            <button
+                className="text-white bg-[#fe7e32] px-12 py-2 rounded-full my-8 text-2xl cursor-pointer disabled:cursor-not-allowed disabled:opacity-60"
+                disabled={confirmReconciliation.isPending}
+                onClick={handleConfirm}
+            >
+                {confirmReconciliation.isPending ? "confirming..." : "confirm"}
+            </button>
+            {confirmReconciliation.isError && (
+                <p className="text-sm text-red-500">{confirmReconciliation.error.message}</p>
+            )}
+            <button className="text-[#fe7e32]  px-6 py-1 rounded-full" onClick={handleAppeal}>appeal</button>
         </div>
     );
 };
